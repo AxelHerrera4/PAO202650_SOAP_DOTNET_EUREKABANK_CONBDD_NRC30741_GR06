@@ -32,7 +32,7 @@ namespace cli_EUREKABANK_esc_DotNet_Soap.monster.edu.ec.servicio
 
     public class EurekaBankServiceClient
     {
-        private const string WS_URL = "http://192.168.0.101:8080/EurekaBankWS.asmx";
+        private const string WS_URL = "http://10.40.26.222:8080/EurekaBankWS.asmx";
         private const string SOAP_NS = "http://schemas.xmlsoap.org/soap/envelope/";
         private const string SERVICE_NS = "http://tempuri.org/";
         private const string SERVICE_ACTION = "http://tempuri.org/EurekaBankWSControlador";

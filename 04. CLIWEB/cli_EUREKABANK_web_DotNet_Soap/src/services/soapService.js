@@ -1,5 +1,5 @@
 // En desarrollo usa el proxy de Vite, en producción usa la URL directa
-const SOAP_URL = import.meta.env.DEV ? "/eureka-soap/EurekaBankWS.asmx" : "http://192.168.0.101:8080/EurekaBankWS.asmx";
+const SOAP_URL = import.meta.env.DEV ? "/eureka-soap/EurekaBankWS.asmx" : "http://10.40.26.222:8080/EurekaBankWS.asmx";
 const NAMESPACE = "http://tempuri.org/";
 const SERVICE_ACTION = "http://tempuri.org/EurekaBankWSControlador";
 
@@ -131,7 +131,7 @@ export async function listarCuentasPorSucursal(idSucursal) {
                 numero: numero,
                 titular: `${nombre} ${apellido}`.trim() || "Consumidor Final",
                 saldo: parseFloat(saldo),
-                estado: disponibilidad === "1" || disponibilidad.toUpperCase() === "DISPONIBLE" ? "LIBRE" : "OCUPADA"
+                estado: disponibilidad === "1" || disponibilidad.toUpperCase() === "DISPONIBLE" || disponibilidad.toUpperCase() === "VERDE" ? "LIBRE" : "OCUPADA"
             });
         });
 
@@ -277,7 +277,7 @@ export async function consultarCuentasPorCliente(dni) {
             numero: numero,
             titular: `${nombre} ${apellido}`.trim(),
             saldo: parseFloat(saldo),
-            estado: disponibilidad === "1" ? "LIBRE" : "OCUPADA"
+            estado: disponibilidad === "1" || disponibilidad.toUpperCase() === "VERDE" || disponibilidad.toUpperCase() === "DISPONIBLE" ? "LIBRE" : "OCUPADA"
         };
     } catch (error) {
         console.error("Error consulting account:", error);

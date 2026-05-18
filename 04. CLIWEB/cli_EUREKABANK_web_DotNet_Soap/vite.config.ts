@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/eureka-soap': {
-        target: 'http://192.168.0.101:8080',
+        target: 'http://10.40.26.222:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/eureka-soap/, ''),
       },
