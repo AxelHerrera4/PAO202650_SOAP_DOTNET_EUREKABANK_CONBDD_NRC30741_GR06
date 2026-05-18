@@ -1,0 +1,173 @@
+
+# 🏗️ ESTRUCTURA MVC - EUREKA BANK WS
+
+## 📊 DIAGRAMA DE CAPAS
+
+```
+╔════════════════════════════════════════════════════════════════════╗
+║                         CLIENTE SOAP                               ║
+║                  (SoapUI, Visual Studio, etc)                      ║
+╚═════════════════════════════════════╦═════════════════════════════╝
+                                      ║
+╔═════════════════════════════════════╩═════════════════════════════╗
+║                   CAPA DE CONTROLADOR                              ║
+║            (monster.edu.ec.controlador)                           ║
+║                                                                   ║
+║  ┌─────────────────────────────────────────────────────────────┐ ║
+║  │  EurekaBankWSControlador (SOAP Web Service)                │ ║
+║  │                                                             │ ║
+║  │  - AutenticarUsuario()                                     │ ║
+║  │  - Depositar()                                             │ ║
+║  │  - Retirar()                                               │ ║
+║  │  - Transferir()                                            │ ║
+║  │  - ListarCuentasPorSucursal()                             │ ║
+║  │  - ConsultarExtracto()                                    │ ║
+║  │  - ConsultarCuentasPorCliente()                           │ ║
+║  └─────────────────────────────────────────────────────────────┘ ║
+╚═════════════════════════════════════╦═════════════════════════════╝
+                                      ║
+╔═════════════════════════════════════╩═════════════════════════════╗
+║                   CAPA DE SERVICIOS                                ║
+║              (monster.edu.ec.servicios)                           ║
+║                                                                   ║
+║  ┌──────────────────────┐  ┌────────────────────────────────┐   ║
+║  │ SeguridadService     │  │ TransaccionService             │   ║
+║  │ ────────────────────│  │ ──────────────────────────────│   ║
+║  │ + Login()            │  │ + RealizarDeposito()          │   ║
+║  │ + LoginCliente()     │  │ + RealizarRetiro()            │   ║
+║  └──────────┬───────────┘  │ + RealizarTransferencia()     │   ║
+║             │              │ + ObtenerCuentasSucursal()    │   ║
+║             │              │ + ObtenerExtracto()           │   ║
+║             │              │ + ObtenerCuentaClientePorDni()│   ║
+║  ┌──────────▼───────────┐  └────────────┬─────────────────┘   ║
+║  │ GestorConcurrencia   │               │                      ║
+║  │ ────────────────────│               │                      ║
+║  │ + BloquearCuenta()  │               │                      ║
+║  │ + LiberarCuenta()   │               │                      ║
+║  │ + GetEstadoCuenta() │               │                      ║
+║  │ (Singleton Pattern) │               │                      ║
+║  └─────────────────────┘               │                      ║
+║                                        │                      ║
+╚════════════════════════════════════════╦══════════════════════════╝
+                                         ║
+╔════════════════════════════════════════╩══════════════════════════╗
+║                  CAPA DE ACCESO A DATOS (DAO)                     ║
+║              (monster.edu.ec.dao + monster.edu.ec.dao.impl)      ║
+║                                                                  ║
+║  ┌──────────────────────┐  ┌──────────────────────┐             ║
+║  │  IEmpleadoDAO        │  │  IClienteDAO         │             ║
+║  │  ────────────────   │  │  ───────────────    │             ║
+║  │  + ValidarLogin()   │  │  + ValidarLogin()   │             ║
+║  └──────────┬───────────┘  └──────────┬──────────┘             ║
+║             │                         │                       ║
+║             ▼                         ▼                       ║
+║  ┌──────────────────────┐  ┌──────────────────────┐           ║
+║  │ EmpleadoDAOImpl       │  │ ClienteDAOImpl        │           ║
+║  └──────────────────────┘  └──────────────────────┘           ║
+║                                                                ║
+║  ┌──────────────────────┐  ┌──────────────────────┐           ║
+║  │  ICuentaDAO          │  │  IMovimientoDAO      │           ║
+║  │  ───────────────────│  │  ──────────────────  │           ║
+║  │  + ObtenerCuenta()  │  │  + RegistrarMov()    │           ║
+║  │  + ActualizarSaldo()│  │  + ListarExtracto()  │           ║
+║  └──────────┬──────────┘  └──────────┬───────────┘           ║
+║             │                        │                       ║
+║             ▼                        ▼                       ║
+║  ┌──────────────────────┐  ┌──────────────────────┐           ║
+║  │ CuentaDAOImpl         │  │ MovimientoDAOImpl     │           ║
+║  └──────────────────────┘  └──────────────────────┘           ║
+║                                                                ║
+╚════════════════════════════════════════╦══════════════════════════╝
+                                         ║
+╔════════════════════════════════════════╩══════════════════════════╗
+║                   CAPA DE MODELOS                                 ║
+║              (monster.edu.ec.model)                              ║
+║                                                                  ║
+║  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐           ║
+║  │ Empleado     │  │ Cliente      │  │ Cuenta       │           ║
+║  └──────────────┘  └──────────────┘  └──────────────┘           ║
+║                                                                  ║
+║  ┌──────────────┐  ┌──────────────────────┐                     ║
+║  │ Movimiento   │  │ CuentaClienteDTO    │                     ║
+║  └──────────────┘  └──────────────────────┘                     ║
+║                                                                  ║
+╚════════════════════════════════════════╦══════════════════════════╝
+                                         ║
+╔════════════════════════════════════════╩══════════════════════════╗
+║                 CAPA DE UTILIDADES                                ║
+║              (monster.edu.ec.util)                               ║
+║                                                                  ║
+║  ┌────────────────────────┐  ┌──────────────────┐              ║
+║  │ ConexionDB             │  │ SeguridadUtil    │              ║
+║  │ ────────────────────── │  │ ────────────────│              ║
+║  │ + GetConexion()        │  │ + CheckPassword()│              ║
+║  │ (SQL Server Connection)│  │ + HashPassword() │              ║
+║  └────────────────────────┘  └──────────────────┘              ║
+║                                                                  ║
+╚════════════════════════════════════════╦══════════════════════════╝
+                                         ║
+╔════════════════════════════════════════╩══════════════════════════╗
+║                    SQL SERVER                                     ║
+║             EurekaBankDB Database                                ║
+║                                                                  ║
+║  📊 Tablas:                                                      ║
+║     - empleado                                                   ║
+║     - cliente                                                    ║
+║     - cuenta                                                     ║
+║     - movimiento                                                 ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+## 🔄 FLUJO DE UNA TRANSACCIÓN DE DEPÓSITO
+
+```
+1. CLIENTE SOAP
+   └─ Depositar(cuentaId="001", monto=1000, empleadoId=1)
+
+2. CONTROLADOR
+   └─ EurekaBankWSControlador.Depositar()
+      └─ Llama TransaccionService.RealizarDeposito()
+
+3. SERVICIOS
+   └─ TransaccionService.RealizarDeposito()
+      ├─ GestorConcurrencia.BloquearCuenta()  ← Bloquea acceso
+      ├─ Abre transacción SQL
+      ├─ TransaccionService obtiene cuenta
+      ├─ Calcula nuevo saldo
+      ├─ Actualiza saldo en BD
+      ├─ Registra movimiento
+      ├─ Commit transacción
+      └─ GestorConcurrencia.LiberarCuenta()  ← Libera acceso
+
+4. DAO
+   ├─ CuentaDAOImpl.ObtenerCuentaForUpdate()
+   │  └─ SELECT * FROM cuenta WITH (UPDLOCK, ROWLOCK)
+   │
+   ├─ CuentaDAOImpl.ActualizarSaldo()
+   │  └─ UPDATE cuenta SET saldo = @saldo
+   │
+   └─ MovimientoDAOImpl.RegistrarMovimiento()
+      └─ INSERT INTO movimiento (...)
+
+5. BASE DE DATOS
+   └─ Operaciones confirmadas ✅
+
+6. RESPUESTA AL CLIENTE
+   └─ SUCCESS: Depósito realizado. Nro Operación: DEP-1234567890
+```
+
+## 🎯 MAPEO MVC
+
+| Componente | Directorio | Archivos |
+|-----------|-----------|----------|
+| **Model** | `monster.edu.ec.model` | Empleado.cs, Cliente.cs, Cuenta.cs, Movimiento.cs, CuentaClienteDTO.cs |
+| **View** | `monster.edu.ec.vista` | RespuestasVista.cs (DTO de respuestas) |
+| **Controller** | `monster.edu.ec.controlador` | EurekaBankWSControlador.cs (Web Service SOAP) |
+| **Services** | `monster.edu.ec.servicios` | SeguridadService, TransaccionService, GestorConcurrencia |
+| **DAO** | `monster.edu.ec.dao` + `.dao.impl` | Interfaces e implementaciones |
+| **Utils** | `monster.edu.ec.util` | ConexionDB, SeguridadUtil |
+
+---
+
+**PATRÓN MVC IMPLEMENTADO CORRECTAMENTE ✅**
